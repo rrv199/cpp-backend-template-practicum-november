@@ -35,6 +35,10 @@ private:
     http::response<http::string_body> HandleMapRequest(const std::string& map_id);
     http::response<http::string_body> MakeErrorResponse(http::status status, const std::string& code, const std::string& message);
     
+    json::array SerializeRoads(const model::Roads& roads);
+    json::array SerializeBuildings(const model::Buildings& buildings);
+    json::array SerializeOffices(const model::Offices& offices);
+    
     std::string UrlDecode(const std::string& encoded);
     std::string GetMimeType(const std::string& path);
     bool IsPathWithinRoot(const std::filesystem::path& path, const std::filesystem::path& root);

@@ -15,6 +15,8 @@ namespace beast = boost::beast;
 namespace http = beast::http;
 namespace json = boost::json;
 
+constexpr double MILLISECONDS_IN_SECOND = 1000.0;
+
 class GameHandler {
 public:
     GameHandler(model::Players& players, 
@@ -28,7 +30,7 @@ public:
     }
 
     void Tick(std::chrono::milliseconds delta) {
-        double time_delta = delta.count() / 1000.0;
+        double time_delta = delta.count() / MILLISECONDS_IN_SECOND;
         
         for (auto& [dog_id, dog] : dogs_.GetAllDogsForUpdate()) {
             const model::Speed& speed = dog.GetSpeed();
@@ -115,7 +117,7 @@ public:
 
         std::string body_str = json::serialize(response_obj);
 
-        http::response<http::string_body> response(http::status::ok, 11);
+        http::response<http::string_body> response(http::status::ok, req.version());
         response.set(http::field::content_type, "application/json");
         response.set(http::field::cache_control, "no-cache");
         response.body() = body_str;
@@ -152,7 +154,7 @@ public:
 
         std::string body_str = json::serialize(players_obj);
 
-        http::response<http::string_body> response(http::status::ok, 11);
+        http::response<http::string_body> response(http::status::ok, req.version());
         response.set(http::field::content_type, "application/json");
         response.set(http::field::cache_control, "no-cache");
         response.body() = body_str;
@@ -206,7 +208,7 @@ public:
 
         std::string body_str = json::serialize(result);
 
-        http::response<http::string_body> response(http::status::ok, 11);
+        http::response<http::string_body> response(http::status::ok, req.version());
         response.set(http::field::content_type, "application/json");
         response.set(http::field::cache_control, "no-cache");
         response.body() = body_str;
@@ -296,7 +298,7 @@ public:
 
         std::string body_str = "{}";
 
-        http::response<http::string_body> response(http::status::ok, 11);
+        http::response<http::string_body> response(http::status::ok, req.version());
         response.set(http::field::content_type, "application/json");
         response.set(http::field::cache_control, "no-cache");
         response.body() = body_str;
@@ -335,11 +337,11 @@ public:
 
         double time_delta;
         if (obj.at("timeDelta").is_int64()) {
-            time_delta = obj.at("timeDelta").as_int64() / 1000.0;
+            time_delta = obj.at("timeDelta").as_int64() / MILLISECONDS_IN_SECOND;
         } else if (obj.at("timeDelta").is_uint64()) {
-            time_delta = obj.at("timeDelta").as_uint64() / 1000.0;
+            time_delta = obj.at("timeDelta").as_uint64() / MILLISECONDS_IN_SECOND;
         } else {
-            time_delta = obj.at("timeDelta").as_double() / 1000.0;
+            time_delta = obj.at("timeDelta").as_double() / MILLISECONDS_IN_SECOND;
         }
 
         for (auto& [dog_id, dog] : dogs_.GetAllDogsForUpdate()) {
@@ -375,7 +377,7 @@ public:
 
         std::string body_str = "{}";
 
-        http::response<http::string_body> response(http::status::ok, 11);
+        http::response<http::string_body> response(http::status::ok, req.version());
         response.set(http::field::content_type, "application/json");
         response.set(http::field::cache_control, "no-cache");
         response.body() = body_str;

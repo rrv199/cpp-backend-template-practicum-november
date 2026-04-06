@@ -17,6 +17,7 @@
 #include "dogs.h"
 #include "args.h"
 #include "ticker.h"
+#include "constants.h"
 
 using namespace std::literals;
 namespace net = boost::asio;
@@ -100,12 +101,12 @@ int main(int argc, char* argv[]) {
         http_server::ServeHttp(ioc, {address, port}, [&](auto&& req, auto&& send) {
             std::string target(req.target().data(), req.target().size());
             
-            if (target == "/api/v1/game/join") {
+            if (target == endpoints::JOIN_GAME) {
                 auto response = game_handler.HandleJoinGame(req);
                 send(std::move(response));
                 return;
             }
-            else if (target == "/api/v1/game/players") {
+            if (target == endpoints::GET_PLAYERS) {
                 auto it = req.find(boost::beast::http::field::authorization);
                 if (it == req.end()) {
                     auto response = game_handler.MakeErrorResponse(
@@ -130,7 +131,7 @@ int main(int argc, char* argv[]) {
                 send(std::move(response));
                 return;
             }
-            else if (target == "/api/v1/game/state") {
+            if (target == endpoints::GAME_STATE) {
                 auto it = req.find(boost::beast::http::field::authorization);
                 if (it == req.end()) {
                     auto response = game_handler.MakeErrorResponse(
@@ -155,7 +156,7 @@ int main(int argc, char* argv[]) {
                 send(std::move(response));
                 return;
             }
-            else if (target == "/api/v1/game/player/action") {
+            if (target == endpoints::PLAYER_ACTION) {
                 auto it = req.find(boost::beast::http::field::authorization);
                 if (it == req.end()) {
                     auto response = game_handler.MakeErrorResponse(
@@ -180,7 +181,7 @@ int main(int argc, char* argv[]) {
                 send(std::move(response));
                 return;
             }
-            else if (target == "/api/v1/game/tick") {
+            if (target == endpoints::TICK) {
                 if (args->tick_period.has_value() && args->tick_period.value() > 0) {
                     auto response = game_handler.MakeErrorResponse(
                         boost::beast::http::status::bad_request, 
@@ -188,13 +189,12 @@ int main(int argc, char* argv[]) {
                         "Invalid endpoint");
                     send(std::move(response));
                     return;
-                } else {
-                    auto response = game_handler.HandleTick(req);
-                    send(std::move(response));
-                    return;
                 }
+                auto response = game_handler.HandleTick(req);
+                send(std::move(response));
+                return;
             }
-            else if (target.size() >= 4 && target.substr(0, 4) == "/api") {
+            if (target.size() >= 4 && target.substr(0, 4) == "/api") {
                 handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
             } else {
                 handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));

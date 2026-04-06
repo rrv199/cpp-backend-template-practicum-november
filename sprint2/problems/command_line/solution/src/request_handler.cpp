@@ -138,13 +138,59 @@ http::response<http::string_body> RequestHandler::HandleApiRequest(const http::r
     std::string target(req.target().data(), req.target().size());
     
     if (target == "/api/v1/maps") return HandleMapsRequest();
-    else if (target.size() > 13 && target.substr(0, 13) == "/api/v1/maps/") {
+    if (target.size() > 13 && target.substr(0, 13) == "/api/v1/maps/") {
         return HandleMapRequest(target.substr(13));
     }
-    else if (target.size() >= 4 && target.substr(0, 4) == "/api") {
+    if (target.size() >= 4 && target.substr(0, 4) == "/api") {
         return MakeErrorResponse(http::status::bad_request, "badRequest", "Bad request");
     }
     return MakeErrorResponse(http::status::not_found, "notFound", "Not found");
+}
+
+json::array RequestHandler::SerializeRoads(const model::Roads& roads) {
+    json::array roads_array;
+    for (const auto& road : roads) {
+        json::object road_obj;
+        auto start = road.GetStart();
+        auto end = road.GetEnd();
+        road_obj["x0"] = start.x;
+        road_obj["y0"] = start.y;
+        if (road.IsHorizontal()) {
+            road_obj["x1"] = end.x;
+        } else {
+            road_obj["y1"] = end.y;
+        }
+        roads_array.push_back(std::move(road_obj));
+    }
+    return roads_array;
+}
+
+json::array RequestHandler::SerializeBuildings(const model::Buildings& buildings) {
+    json::array buildings_array;
+    for (const auto& building : buildings) {
+        auto bounds = building.GetBounds();
+        json::object building_obj;
+        building_obj["x"] = bounds.position.x;
+        building_obj["y"] = bounds.position.y;
+        building_obj["w"] = bounds.size.width;
+        building_obj["h"] = bounds.size.height;
+        buildings_array.push_back(std::move(building_obj));
+    }
+    return buildings_array;
+}
+
+json::array RequestHandler::SerializeOffices(const model::Offices& offices) {
+    json::array offices_array;
+    for (const auto& office : offices) {
+        json::object office_obj;
+        office_obj["id"] = *office.GetId();
+        office_obj["x"] = office.GetPosition().x;
+        office_obj["y"] = office.GetPosition().y;
+        office_obj["offsetX"] = office.GetOffset().dx;
+        office_obj["offsetY"] = office.GetOffset().dy;
+        offices_array.push_back(std::move(office_obj));
+    }
+    return offices_array;
 }
 
 http::response<http::string_body> RequestHandler::HandleMapsRequest() {
@@ -175,43 +221,9 @@ http::response<http::string_body> RequestHandler::HandleMapRequest(const std::st
     json::object map_obj;
     map_obj["id"] = *map->GetId();
     map_obj["name"] = map->GetName();
-    
-    json::array roads_array;
-    for (const auto& road : map->GetRoads()) {
-        json::object road_obj;
-        auto start = road.GetStart();
-        auto end = road.GetEnd();
-        road_obj["x0"] = start.x;
-        road_obj["y0"] = start.y;
-        if (road.IsHorizontal()) road_obj["x1"] = end.x;
-        else road_obj["y1"] = end.y;
-        roads_array.push_back(std::move(road_obj));
-    }
-    map_obj["roads"] = std::move(roads_array);
-    
-    json::array buildings_array;
-    for (const auto& building : map->GetBuildings()) {
-        auto bounds = building.GetBounds();
-        json::object building_obj;
-        building_obj["x"] = bounds.position.x;
-        building_obj["y"] = bounds.position.y;
-        building_obj["w"] = bounds.size.width;
-        building_obj["h"] = bounds.size.height;
-        buildings_array.push_back(std::move(building_obj));
-    }
-    map_obj["buildings"] = std::move(buildings_array);
-    
-    json::array offices_array;
-    for (const auto& office : map->GetOffices()) {
-        json::object office_obj;
-        office_obj["id"] = *office.GetId();
-        office_obj["x"] = office.GetPosition().x;
-        office_obj["y"] = office.GetPosition().y;
-        office_obj["offsetX"] = office.GetOffset().dx;
-        office_obj["offsetY"] = office.GetOffset().dy;
-        offices_array.push_back(std::move(office_obj));
-    }
-    map_obj["offices"] = std::move(offices_array);
+    map_obj["roads"] = SerializeRoads(map->GetRoads());
+    map_obj["buildings"] = SerializeBuildings(map->GetBuildings());
+    map_obj["offices"] = SerializeOffices(map->GetOffices());
     
     std::string body = json::serialize(map_obj);
     

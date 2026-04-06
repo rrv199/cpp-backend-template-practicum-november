@@ -29,15 +29,14 @@ public:
             if (road.IsHorizontal()) {
                 double x = start.x + t * (end.x - start.x);
                 return Point(x, start.y);
-            } else {
-                double y = start.y + t * (end.y - start.y);
-                return Point(start.x, y);
             }
-        } else {
-            const auto& road = roads[0];
-            auto start = road.GetStart();
-            return Point(start.x, start.y);
+            double y = start.y + t * (end.y - start.y);
+            return Point(start.x, y);
         }
+        
+        const auto& road = roads[0];
+        auto start = road.GetStart();
+        return Point(start.x, start.y);
     }
 
 private:

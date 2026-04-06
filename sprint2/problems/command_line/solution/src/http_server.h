@@ -33,12 +33,8 @@ public:
 
     virtual ~SessionBase() = default;
 
-    void Run() {
-        auto self = shared_from_this();
-        net::post(stream_.get_executor(), [self]() {
-            self->Read();
-        });
-    }
+    void Run();
+    void Close();
 
     template <typename Body, typename Fields>
     void Write(http::response<Body, Fields>&& response) {
@@ -54,11 +50,6 @@ public:
 
 protected:
     using HttpRequest = http::request<http::string_body>;
-
-    void Close() {
-        beast::error_code ec;
-        stream_.socket().shutdown(tcp::socket::shutdown_send, ec);
-    }
 
 private:
     void Read() {
