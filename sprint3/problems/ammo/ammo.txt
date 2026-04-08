@@ -1,0 +1,31 @@
+[Connection: close]
+[Host: localhost]
+/api/v1/maps
+
+[Connection: close]
+[Host: localhost]
+/api/v1/maps/map1
+
+[Connection: close]
+[Host: localhost]
+/api/v1/maps/map2
+
+[Connection: close]
+[Host: localhost]
+/api/v1/maps/map3
+
+[Connection: close]
+[Host: localhost]
+/index.html
+
+[Connection: close]
+[Host: localhost]
+/game.html
+
+[Connection: close]
+[Host: localhost]
+/about.html
+
+[Connection: close]
+[Host: localhost]
+/images/cube.svg
