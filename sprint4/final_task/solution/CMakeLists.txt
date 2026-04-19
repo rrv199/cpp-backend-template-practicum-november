@@ -13,10 +13,10 @@ endif()
 find_package(Threads REQUIRED)
 
 add_executable(game_server
-    src/main_test.cpp
     src/database.cpp
     src/dog_manager.cpp
     src/records_handler.cpp
+    src/main.cpp
 )
 
 target_include_directories(game_server PRIVATE src)
