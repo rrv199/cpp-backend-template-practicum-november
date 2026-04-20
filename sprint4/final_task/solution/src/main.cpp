@@ -1,41 +1,56 @@
+#include "http_server.h"
+#include "json_loader.h"
+#include "request_handler.h"
 #include "database.hpp"
-#include "dog_manager.hpp"
-#include "records_handler.hpp"
-#include <cstdlib>
+
+#include <boost/asio/io_context.hpp>
+#include <boost/asio/signal_set.hpp>
+#include <boost/asio/ip/address.hpp>
 #include <iostream>
 #include <thread>
-#include <chrono>
 
-int main() {
-    const char* db_url = std::getenv("GAME_DB_URL");
-    if (!db_url) {
-        std::cerr << "GAME_DB_URL not set" << std::endl;
-        return 1;
+namespace net = boost::asio;
+using namespace std::literals;
+
+int main(int argc, const char* argv[]) {
+    if (argc != 2) {
+        std::cerr << "Usage: game_server <game-config-json>" << std::endl;
+        return EXIT_FAILURE;
     }
-    
-    database::DatabaseManager db_manager(db_url);
-    db_manager.InitializeTables();
-    
-    game::DogManager dog_manager(db_manager);
-    dog_manager.SetRetirementTime(3.0);
-    
-    std::cout << "\n=== Test: Dog retirement ===" << std::endl;
-    
-    dog_manager.OnDogJoin("dog1", "Rex");
-    dog_manager.OnDogMove("dog1");
-    dog_manager.OnDogScore("dog1", 100);
-    dog_manager.OnDogStop("dog1");
-    
-    std::cout << "Waiting 4 seconds..." << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(4));
-    
-    dog_manager.Update();
-    
-    auto records = db_manager.GetRecords(0, 10);
-    std::cout << "\n=== Retired players ===" << std::endl;
-    for (const auto& r : records) {
-        std::cout << "Name: " << r.name << ", Score: " << r.score << ", PlayTime: " << r.play_time_seconds << "s" << std::endl;
+
+    try {
+        auto game = json_loader::LoadGame(argv[1]);
+
+        const char* db_url = std::getenv("GAME_DB_URL");
+        if (!db_url) {
+            std::cerr << "GAME_DB_URL environment variable not set" << std::endl;
+            return EXIT_FAILURE;
+        }
+        
+        database::DatabaseManager db_manager(db_url);
+        db_manager.InitializeTables();
+
+        http_handler::RequestHandler handler{game, db_manager};
+
+        const auto address = net::ip::make_address("0.0.0.0");
+        constexpr unsigned short port = 8080;
+
+        net::io_context ioc(2);
+        
+        http_server::ServeHttp(ioc, {address, port}, handler);
+
+        net::signal_set signals(ioc, SIGINT, SIGTERM);
+        signals.async_wait([&ioc](const boost::system::error_code&, int) {
+            ioc.stop();
+        });
+
+        std::cout << "Server started on port " << port << std::endl;
+        ioc.run();
+
+    } catch (const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
-    
-    return 0;
+
+    return EXIT_SUCCESS;
 }

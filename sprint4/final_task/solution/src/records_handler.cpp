@@ -3,6 +3,8 @@
 
 namespace http {
 
+constexpr int MAX_ITEMS_LIMIT = 100;
+
 RecordsHandler::RecordsHandler(database::DatabaseManager& db_manager) : db_manager_(db_manager) {}
 
 bool RecordsHandler::ValidateParams(int start, int max_items, std::string& error_message) {
@@ -14,8 +16,8 @@ bool RecordsHandler::ValidateParams(int start, int max_items, std::string& error
         error_message = "maxItems must be >= 1";
         return false;
     }
-    if (max_items > 100) {
-        error_message = "maxItems must be <= 100";
+    if (max_items > MAX_ITEMS_LIMIT) {
+        error_message = "maxItems must be <= " + std::to_string(MAX_ITEMS_LIMIT);
         return false;
     }
     return true;

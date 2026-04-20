@@ -13,6 +13,9 @@ endif()
 find_package(Threads REQUIRED)
 
 add_executable(game_server
+    src/json_loader.cpp
+    src/model.cpp
+    src/request_handler.cpp
     src/database.cpp
     src/dog_manager.cpp
     src/records_handler.cpp
