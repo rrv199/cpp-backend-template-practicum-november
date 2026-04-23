@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project($task)
+project(find_return)
 set(CMAKE_CXX_STANDARD 20)
-add_executable($task src/main.cpp)
+add_executable(find_return src/main.cpp)
+target_link_libraries(find_return PRIVATE pqxx)
