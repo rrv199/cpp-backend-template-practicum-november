@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(state_serialization)
+project($task)
 set(CMAKE_CXX_STANDARD 20)
-add_executable(state_serialization src/main.cpp)
+add_executable($task src/main.cpp)
+target_link_libraries($task PRIVATE pqxx)
