@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project($task)
+project(logger)
 set(CMAKE_CXX_STANDARD 20)
-add_executable($task src/main.cpp)
+add_executable(logger src/main.cpp)
+target_link_libraries(logger PRIVATE boost_log boost_log_setup)
