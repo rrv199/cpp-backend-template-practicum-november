@@ -1,4 +1,4 @@
 cmake_minimum_required(VERSION 3.11)
-project(map_json)
+project($task)
 set(CMAKE_CXX_STANDARD 20)
-add_executable(map_json src/main.cpp)
+add_executable($task src/main.cpp)

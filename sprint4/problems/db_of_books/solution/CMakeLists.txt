@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(db_of_books)
+project($task)
 set(CMAKE_CXX_STANDARD 20)
-add_executable(db_of_books src/main.cpp)
-target_link_libraries(db_of_books PRIVATE pqxx)
+add_executable($task src/main.cpp)
+target_link_libraries($task PRIVATE pqxx)

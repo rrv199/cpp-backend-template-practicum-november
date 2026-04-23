@@ -1,4 +1,4 @@
 cmake_minimum_required(VERSION 3.11)
-project(command_line)
+project($task)
 set(CMAKE_CXX_STANDARD 20)
-add_executable(command_line src/main.cpp)
+add_executable($task src/main.cpp)
