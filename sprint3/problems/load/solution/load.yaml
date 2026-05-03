@@ -4,4 +4,7 @@ phantom:
   ammo_type: uri
   load_profile:
     load_type: rps
-    schedule: line(10, 100, 2m)
+    schedule: const(10, 30s)
+  ssl: false
+console:
+  enabled: true
