@@ -1,3 +1,1 @@
-[Connection: close]
-[Host: localhost]
-/api/v1/maps
+test
