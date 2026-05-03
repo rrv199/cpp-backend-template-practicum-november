@@ -1,1 +1,4 @@
-test
+[Connection: close]
+[Host: localhost]
+GET /api/v1/maps HTTP/1.1
+
