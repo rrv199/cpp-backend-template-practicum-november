@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
 project(gather_tests)
 set(CMAKE_CXX_STANDARD 20)
-add_executable(gather_tests tests/main.cpp)
+add_executable(gather_tests src/main.cpp)
+target_link_libraries(gather_tests PRIVATE catch2)
